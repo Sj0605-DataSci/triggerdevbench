@@ -1,0 +1,240 @@
+[
+  {
+    "id": "eval-08-deploy-drift-error-clarity",
+    "category": "deploy-drift",
+    "pass": false,
+    "reason": "CONFIRMED STUCK RUN: trigger call returned HTTP 200 \"success\" for a nonexistent task, and the run NEVER resolved (still PENDING_VERSION) even 10+1min past its own TTL — matches the self-hosted \"runs stuck indefinitely\" failure pattern from GitHub issues",
+    "detail": {
+      "httpStatus": 200,
+      "runId": "run_cmtpnilv0019z72phqq3bn4xo",
+      "initialStatus": "QUEUED",
+      "ttl": "10m",
+      "finalStatus": "still PENDING_VERSION"
+    },
+    "durationMs": 662020
+  },
+  {
+    "id": "eval-09-idempotency-dedup",
+    "category": "idempotency",
+    "pass": true,
+    "reason": "5 concurrent triggers with same idempotencyKey collapsed to 1 run, 1 execution",
+    "detail": {
+      "uniqueRunCount": 1,
+      "executionCounts": [
+        1
+      ]
+    },
+    "durationMs": 1588
+  },
+  {
+    "id": "eval-10-retry-backoff",
+    "category": "retries",
+    "pass": true,
+    "reason": "Succeeded on attempt 4 after 3 forced failures; wall time 11.95s consistent with exponential backoff (min expected ~7.00s)",
+    "detail": {
+      "wallMs": 11951,
+      "expectedMinMs": 7000,
+      "attemptCount": 4,
+      "status": "COMPLETED"
+    },
+    "durationMs": 12245
+  },
+  {
+    "id": "eval-01-queue-starvation",
+    "category": "concurrency",
+    "pass": true,
+    "reason": "Quick runs completed within 9.94s of the hog holding the queue (expected FIFO delay, no starvation)",
+    "detail": {
+      "maxWaitMs": 9941,
+      "statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ]
+    },
+    "durationMs": 10020
+  },
+  {
+    "id": "eval-11-non-idempotent-misuse",
+    "category": "idempotency-misuse",
+    "pass": true,
+    "reason": "CONFIRMED FOOTGUN: side effect fired 2x across retries with no idempotencyKey set — this is expected platform behavior, but a real customer-education risk (matches r/nextjs idempotency discussion)",
+    "detail": {
+      "sentCount": 2,
+      "status": "COMPLETED"
+    },
+    "durationMs": 1560
+  },
+  {
+    "id": "eval-14-wait-for-state",
+    "category": "observability",
+    "pass": true,
+    "reason": "wait.for(4s) completed correctly (waited 4.00s). NOTE: never observed WAITING/FROZEN status via polling (statuses seen: EXECUTING, COMPLETED) — short dev-mode waits may not checkpoint/expose an intermediate state, worth checking against docs' FROZEN-state description.",
+    "detail": {
+      "elapsedMs": 4565,
+      "observedStatuses": [
+        "EXECUTING",
+        "COMPLETED"
+      ],
+      "waitedMs": 4003
+    },
+    "durationMs": 4595
+  },
+  {
+    "id": "eval-02-wildcard-concurrency-key",
+    "category": "concurrency",
+    "pass": true,
+    "reason": "Distinct-key runs completed in 1.54s while a wildcard-key (\"*\") run held the queue for 6s — no starvation",
+    "detail": {
+      "maxWaitMs": 1536,
+      "statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ]
+    },
+    "durationMs": 6934
+  },
+  {
+    "id": "eval-24-idempotency-payload-collision",
+    "category": "idempotency-edge-case",
+    "pass": true,
+    "reason": "Same idempotencyKey with racing different payloads (A vs B) correctly collapsed to 1 run (payload \"B\" won) -- deterministic dedup held under a true race",
+    "detail": {
+      "uniqueRunCount": 1,
+      "wonVariant": "B",
+      "runIds": [
+        "run_cmtpnxl5m01ba72phr0mn2q9m",
+        "run_cmtpnxl5m01ba72phr0mn2q9m"
+      ]
+    },
+    "durationMs": 808
+  },
+  {
+    "id": "eval-25-cancel-mid-execution",
+    "category": "cancellation",
+    "pass": false,
+    "reason": "cancelOk=true, status=CANCELED, stepsCompleted=undefined/20 -- task ran to/near completion despite cancel request (cancel may be cosmetic-only)",
+    "detail": {
+      "cancelOk": true,
+      "status": "CANCELED",
+      "totalSteps": 20
+    },
+    "durationMs": 2071
+  },
+  {
+    "id": "eval-28-oversized-payload",
+    "category": "edge-case",
+    "pass": true,
+    "reason": "4MB payload cleanly rejected: HTTP 413 \"{\"error\":\"Request body too large\"}\"",
+    "detail": {
+      "httpStatus": 413,
+      "payloadSize": 4194304
+    },
+    "durationMs": 15
+  },
+  {
+    "id": "evalBatchIngestion",
+    "category": "error",
+    "pass": false,
+    "reason": "Threw: fetch failed",
+    "durationMs": 66000
+  },
+  {
+    "id": "eval-22-long-running-agent-no-timeout",
+    "category": "ai-agent",
+    "pass": true,
+    "reason": "5-step Nemotron-backed agent loop completed in 12.10s, no platform timeout hit",
+    "detail": {
+      "elapsedMs": 12096,
+      "status": "COMPLETED",
+      "stepResults": [
+        {
+          "step": 1,
+          "tookMs": 3664
+        },
+        {
+          "step": 2,
+          "tookMs": 557
+        },
+        {
+          "step": 3,
+          "tookMs": 485
+        },
+        {
+          "step": 4,
+          "tookMs": 578
+        },
+        {
+          "step": 5,
+          "tookMs": 488
+        }
+      ]
+    },
+    "durationMs": 12131
+  },
+  {
+    "id": "misc-nemotron-judge-sanity",
+    "category": "misc",
+    "pass": true,
+    "reason": "Local judge model returned a well-formed verdict: {\"pass\":true,\"reason\":\"The background job platform completed the task within the expected time range of 200ms without any errors. This is considered a healthy result.\"}",
+    "detail": {
+      "pass": true,
+      "reason": "The background job platform completed the task within the expected time range of 200ms without any errors. This is considered a healthy result."
+    },
+    "durationMs": 726
+  },
+  {
+    "id": "eval-26-serial-queue-tail-latency",
+    "category": "concurrency",
+    "pass": true,
+    "reason": "15-item concurrencyLimit=1 queue: last item finished at 37.06s (theoretical min 30.00s, scheduling overhead 7.06s). Overhead within reasonable bounds -- but note the tail latency itself is a real SLA number to communicate to customers using shared concurrencyLimit=1 queues.",
+    "detail": {
+      "tailLatencyMs": 37062,
+      "theoreticalMinMs": 30000,
+      "overheadMs": 7062,
+      "N": 15,
+      "holdMs": 2000
+    },
+    "durationMs": 37636
+  },
+  {
+    "id": "eval-03-webhook-burst",
+    "category": "load",
+    "pass": true,
+    "reason": "100/100 webhook-style burst-triggered runs eventually completed, zero dropped (hit rate limiter 140x during burst — a sender WITHOUT retry-on-429 logic would drop events here)",
+    "detail": {
+      "total": 100,
+      "completed": 100,
+      "missing": 0,
+      "rateLimitHits": 140
+    },
+    "durationMs": 28154
+  },
+  {
+    "id": "eval-29-naive-sender-burst-no-retry",
+    "category": "load",
+    "pass": false,
+    "reason": "PERMANENT DATA LOSS under naive-sender burst: 173/200 (86.5%) webhooks were rejected at the door (mostly 429s) and, since this simulates a sender with NO retry logic, those events are gone forever. Real customers whose webhook senders (Stripe, etc.) don't aggressively retry on 429 will lose data under burst load on default self-hosted rate limits.",
+    "detail": {
+      "total": 200,
+      "accepted": 27,
+      "rejected": 173,
+      "lossRate": 0.865
+    },
+    "durationMs": 119
+  },
+  {
+    "id": "eval-12-realtime-status-under-load",
+    "category": "observability",
+    "pass": true,
+    "reason": "All 30 concurrently-triggered runs independently queryable with correct, unique output under load (rate-limited 60x, absorbed by retry)",
+    "detail": {
+      "total": 30,
+      "completed": 30,
+      "uniqueIndices": 30,
+      "rateLimitHits": 60
+    },
+    "durationMs": 16885
+  }
+]

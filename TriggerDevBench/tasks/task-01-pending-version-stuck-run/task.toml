@@ -1,0 +1,32 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-01-pending-version-stuck-run"
+description = "Trigger a task identifier that no deployed worker will ever register, and check whether the run resolves or stays wedged forever."
+authors = ["TriggerDevBench"]
+keywords = ["deploy-drift", "stuck-run", "self-hosted", "ttl"]
+
+[metadata]
+source = "GitHub troubleshooting docs (most common real-world failure: deploy forgot new task code) + confirmed live repro against self-hosted v4.5.16"
+platform_test_coverage_gap = "internal-packages/run-engine/src/engine/tests/pendingVersion.test.ts and ttl.test.ts test TTL arming AFTER a matching worker arrives; neither tests TTL expiry while a run is still PENDING_VERSION with no worker ever arriving."
+claimed_sla = "Run's own ttl field (default 10m in dev) implies the platform should resolve an unfulfillable trigger by TTL expiry."
+
+[verifier]
+# TTL default (10m) + generous buffer for sweep detection latency.
+timeout_sec = 780.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 30.0
+
+[environment]
+# Reuses the shared self-hosted Trigger.dev v4 stack (see ../../shared/README.md)
+# rather than redefining postgres/redis/clickhouse/electric/minio/registry/s2/
+# supervisor/webapp per task -- same reasoning ITSMBench uses for its shared
+# taskgen-emulator image, applied to our shared self-hosted deployment.
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

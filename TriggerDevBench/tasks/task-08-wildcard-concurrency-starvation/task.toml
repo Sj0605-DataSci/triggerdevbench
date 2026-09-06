@@ -1,0 +1,25 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-08-wildcard-concurrency-starvation"
+description = "Check whether a run triggered with a wildcard concurrencyKey ('*') can starve unrelated concurrencyKeys sharing the same queue."
+authors = ["TriggerDevBench"]
+keywords = ["concurrency", "queue-fairness", "wildcard-key"]
+
+[metadata]
+source = "Trigger.dev changelog fix: using '*' as a concurrency key previously could stall an entire queue including unrelated keys; verifying it stays fixed."
+
+[verifier]
+timeout_sec = 30.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 20.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

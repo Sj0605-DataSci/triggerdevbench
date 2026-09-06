@@ -1,0 +1,25 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-09-replay-determinism"
+description = "Replay a completed run via the /replay API and confirm it genuinely re-executes and reproduces identical output for a pure task."
+authors = ["TriggerDevBench"]
+keywords = ["determinism", "replay", "correctness"]
+
+[metadata]
+source = "Formal correctness property from 'Durable Functions: Semantics for Stateful Serverless' (OOPSLA/PACMPL 2021) -- replay determinism is the core guarantee durable-execution semantics are supposed to provide."
+
+[verifier]
+timeout_sec = 30.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 15.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

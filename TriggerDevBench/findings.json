@@ -1,0 +1,62 @@
+[
+  {
+    "task": "task-01-pending-version-stuck-run",
+    "category": "deploy-drift",
+    "result": "FAIL",
+    "finding": "Triggering a task id no worker will ever register returns HTTP 200 (false-positive success) and the run stays in PENDING_VERSION forever, past its own 10-minute TTL, with no worker ever arriving."
+  },
+  {
+    "task": "task-02-cancel-hard-kill",
+    "category": "cancellation",
+    "result": "FAIL",
+    "finding": "Cancel is a deterministic hard kill: 0/5 independent trials showed the task's own signal.aborted cleanup code ever executing. No output field populated in any trial."
+  },
+  {
+    "task": "task-03-naive-sender-burst-loss",
+    "category": "load",
+    "result": "DISCLOSED",
+    "finding": "A 200-event webhook burst from a non-retrying sender loses 0% of events in isolation but 86.5% when the same burst runs alongside other concurrent traffic sharing the same rate-limit window."
+  },
+  {
+    "task": "task-04-executing-crash-recovery",
+    "category": "resilience",
+    "result": "PASS",
+    "finding": "A real SIGKILL of the entire worker process tree mid-execution resolves the run at exactly 300.06s, matching the platform's own 300.00s claimed heartbeat-stall SLA, with no worker ever reconnecting."
+  },
+  {
+    "task": "task-05-self-hosted-no-checkpoint",
+    "category": "capacity-planning",
+    "result": "DISCLOSED",
+    "finding": "Self-hosted Docker has zero CRIU checkpoint support (confirmed in docs and source). A wait.for() holds its full concurrency slot for the wait's entire duration: a 4-task batch on a concurrencyLimit=2 queue took 41.4s instead of the ~20s a checkpointed deployment would need."
+  },
+  {
+    "task": "task-06-idempotency-dedup",
+    "category": "correctness",
+    "result": "PASS",
+    "finding": "5 truly concurrent triggers with the same idempotencyKey collapse to exactly 1 run and 1 execution, enforced via a Postgres unique constraint."
+  },
+  {
+    "task": "task-07-retry-backoff-timing",
+    "category": "retries",
+    "result": "PASS",
+    "finding": "Exponential backoff wall-clock timing is real (10.8s actual vs 7.0s theoretical minimum for 3 forced failures), not retried back-to-back. Task-local in-memory state was found to reset between attempts in dev mode."
+  },
+  {
+    "task": "task-08-wildcard-concurrency-starvation",
+    "category": "concurrency",
+    "result": "PASS",
+    "finding": "A wildcard concurrencyKey ('*') run holding a queue for 6s does not starve unrelated distinct-key runs on the same queue (previously-fixed regression, confirmed still fixed)."
+  },
+  {
+    "task": "task-09-replay-determinism",
+    "category": "determinism",
+    "result": "PASS",
+    "finding": "POST /replay genuinely re-executes a task (proven via a file-based execution counter) and reproduces byte-identical output for a pure/deterministic task."
+  },
+  {
+    "task": "task-10-oversized-payload",
+    "category": "edge-case",
+    "result": "PASS",
+    "finding": "A 4MB payload is cleanly rejected with HTTP 413 and a clear message, no hang, crash, or silent truncation."
+  }
+]

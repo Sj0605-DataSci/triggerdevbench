@@ -1,0 +1,26 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-07-retry-backoff-timing"
+description = "Force 3 transient failures and confirm the wall-clock retry timing follows the configured exponential backoff curve."
+authors = ["TriggerDevBench"]
+keywords = ["retries", "backoff", "timing"]
+
+[metadata]
+source = "trigger.config.ts retry config (minTimeoutInMs=1000, factor=2), verified against wall-clock createdAt->finishedAt rather than task-local timestamps (which reset per attempt in dev mode -- see note below)."
+implementation_note = "Task-local in-memory state resets between retry attempts in dev mode (each attempt is a fresh module load), so per-attempt timestamps can't be measured from inside the task. This driver uses run-level createdAt/finishedAt wall-clock instead, which includes the queued backoff delays between attempts."
+
+[verifier]
+timeout_sec = 30.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 20.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

@@ -1,0 +1,26 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-05-self-hosted-no-checkpoint"
+description = "Verify empirically that self-hosted Docker's documented lack of CRIU checkpoint support means wait.for() holds a full concurrency slot for its entire duration."
+authors = ["TriggerDevBench"]
+keywords = ["checkpoint", "concurrency", "capacity-planning", "self-hosted", "wait"]
+
+[metadata]
+source = "docs/self-hosting/docker.mdx ('No checkpoint support... only ever experimental when self-hosting') and docs/self-hosting/overview.mdx feature table (Checkpoints: Cloud only, enables 'non-blocking waits, less resource usage'); confirmed empirically, not just cited from docs."
+platform_test_coverage_gap = "This is documented, expected behavior, not a bug -- but it started as a crash-recovery test (mid-SUSPENDED-wait) that turned out to be inapplicable: self-hosted never enters a real SUSPENDED/checkpointed state at all, at any wait duration."
+
+[verifier]
+timeout_sec = 90.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 60.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

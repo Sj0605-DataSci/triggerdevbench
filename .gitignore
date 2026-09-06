@@ -1,0 +1,14 @@
+# Upstream source clone -- not this repo's work, and huge
+trigger.dev/
+
+# Node
+node_modules/
+dist/
+.trigger/
+
+# Secrets
+.env
+.env.local
+
+# OS
+.DS_Store

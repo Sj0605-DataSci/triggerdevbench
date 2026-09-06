@@ -1,0 +1,25 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-06-idempotency-dedup"
+description = "Fire 5 concurrent triggers with the same idempotencyKey and confirm exactly one execution."
+authors = ["TriggerDevBench"]
+keywords = ["idempotency", "correctness", "race-condition"]
+
+[metadata]
+source = "Trigger.dev docs' idempotencyKey guarantee, verified under a true concurrent race (no artificial delay between calls)."
+
+[verifier]
+timeout_sec = 30.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 20.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

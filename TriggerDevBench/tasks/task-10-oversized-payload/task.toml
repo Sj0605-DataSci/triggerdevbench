@@ -1,0 +1,25 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-10-oversized-payload"
+description = "Trigger with a 4MB payload and confirm a clean rejection (not a hang, crash, or silent truncation)."
+authors = ["TriggerDevBench"]
+keywords = ["edge-case", "payload-size", "error-handling"]
+
+[metadata]
+source = "Adversarial edge-case probe, not a documented limit -- testing for a clean 4xx vs. an unhandled failure mode."
+
+[verifier]
+timeout_sec = 30.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 20.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

@@ -1,0 +1,718 @@
+<title>TriggerDevBench</title>
+<style>
+  :root {
+    --bg: #f5f6f3;
+    --surface: #ffffff;
+    --surface-2: #eaece7;
+    --surface-3: #dde1da;
+    --ink-900: #101917;
+    --ink-700: #33403c;
+    --ink-500: #5c6b66;
+    --ink-400: #7c8b87;
+    --border: #d7dbd3;
+    --accent: #0b8f83;
+    --accent-ink: #075f57;
+    --accent-soft: #e2f3f0;
+    --status-good: #2f8f5b;
+    --status-good-soft: #e5f3ea;
+    --status-fail: #b23a2a;
+    --status-fail-soft: #f7e7e3;
+    --status-info: #b8860b;
+    --status-info-soft: #f6eede;
+    --bar-track: #e3e6e0;
+    --shadow: 0 1px 2px rgba(16, 25, 23, 0.06), 0 8px 24px -12px rgba(16, 25, 23, 0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a1412;
+      --surface: #101c19;
+      --surface-2: #16231f;
+      --surface-3: #1d2b26;
+      --ink-900: #eaf2ef;
+      --ink-700: #c3d1cc;
+      --ink-500: #93a49e;
+      --ink-400: #6e8681;
+      --border: #24352f;
+      --accent: #1c9284;
+      --accent-ink: #8fece0;
+      --accent-soft: #123531;
+      --status-good: #369160;
+      --status-good-soft: #142a1e;
+      --status-fail: #c14f3a;
+      --status-fail-soft: #2c1912;
+      --status-info: #a08a10;
+      --status-info-soft: #2b2213;
+      --bar-track: #1d2b26;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0a1412;
+    --surface: #101c19;
+    --surface-2: #16231f;
+    --surface-3: #1d2b26;
+    --ink-900: #eaf2ef;
+    --ink-700: #c3d1cc;
+    --ink-500: #93a49e;
+    --ink-400: #6e8681;
+    --border: #24352f;
+    --accent: #1c9284;
+    --accent-ink: #8fece0;
+    --accent-soft: #123531;
+    --status-good: #369160;
+    --status-good-soft: #142a1e;
+    --status-fail: #c14f3a;
+    --status-fail-soft: #2c1912;
+    --status-info: #a08a10;
+    --status-info-soft: #2b2213;
+    --bar-track: #1d2b26;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink-700);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  h1, h2, h3 {
+    font-family: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
+    color: var(--ink-900);
+    text-wrap: balance;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Masthead ---------- */
+  header.masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    padding-bottom: 2.75rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    width: fit-content;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  h1.title {
+    font-size: clamp(2.4rem, 5vw, 3.4rem);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+  }
+
+  .dek {
+    max-width: 62ch;
+    font-size: 1.1rem;
+    color: var(--ink-500);
+  }
+
+  .masthead-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.6rem;
+    margin-top: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--ink-400);
+  }
+  .masthead-meta strong { color: var(--ink-700); font-weight: 500; }
+
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 4rem; }
+  section > h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+  }
+  .section-note {
+    color: var(--ink-500);
+    max-width: 68ch;
+    margin: 0 0 1.75rem;
+  }
+
+  /* ---------- Stat strip ---------- */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .stat {
+    background: var(--surface);
+    padding: 1.35rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .stat .num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--ink-900);
+    line-height: 1;
+  }
+  .stat .num.good { color: var(--status-good); }
+  .stat .num.fail { color: var(--status-fail); }
+  .stat .label {
+    font-size: 0.78rem;
+    color: var(--ink-500);
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- Task list ---------- */
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .task {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.15rem 1.35rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.25rem 1.1rem;
+    align-items: start;
+    box-shadow: var(--shadow);
+  }
+
+  .task .idx {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--ink-400);
+    padding-top: 0.28rem;
+    min-width: 2.4rem;
+  }
+
+  .task .body { min-width: 0; }
+  .task .task-name {
+    font-weight: 600;
+    color: var(--ink-900);
+    font-size: 1rem;
+  }
+  .task .task-detail {
+    color: var(--ink-500);
+    font-size: 0.92rem;
+    margin-top: 0.15rem;
+  }
+  .task .task-finding {
+    margin-top: 0.4rem;
+    font-size: 0.88rem;
+    color: var(--ink-700);
+  }
+  .task .task-finding .mono { color: var(--ink-900); }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill.pass { background: var(--status-good-soft); color: var(--status-good); }
+  .pill.fail { background: var(--status-fail-soft); color: var(--status-fail); }
+  .pill.info { background: var(--status-info-soft); color: var(--status-info); }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+
+  /* ---------- Comparison bars ---------- */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem 1.6rem 1.4rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.1rem;
+  }
+  .chart-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .chart-card .chart-sub {
+    font-size: 0.85rem;
+    color: var(--ink-500);
+    margin-bottom: 1.3rem;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 84px;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.7rem;
+  }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-row .bar-label {
+    font-size: 0.82rem;
+    color: var(--ink-500);
+    text-align: right;
+  }
+  .bar-track {
+    position: relative;
+    height: 20px;
+    background: var(--bar-track);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+  }
+  .bar-fill.accent { background: var(--accent); }
+  .bar-fill.good { background: var(--status-good); }
+  .bar-fill.fail { background: var(--status-fail); }
+  .bar-fill.muted { background: var(--ink-400); opacity: 0.55; }
+  .bar-row .bar-value {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.82rem;
+    color: var(--ink-900);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .bar-marker {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--ink-900);
+    opacity: 0.6;
+  }
+  .bar-marker-label {
+    position: absolute;
+    top: -1.35rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    color: var(--ink-500);
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  /* ---------- Provenance grid ---------- */
+  .provenance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .prov-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+  }
+  .prov-card .prov-kind {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 0.45rem;
+  }
+  .prov-card h4 {
+    margin: 0 0 0.35rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--ink-900);
+  }
+  .prov-card p {
+    margin: 0;
+    font-size: 0.87rem;
+    color: var(--ink-500);
+  }
+
+  /* ---------- Format note ---------- */
+  .format-note {
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem 1.7rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+  .format-note .fnote-tree {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--ink-700);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.55;
+  }
+
+  /* ---------- Closing ---------- */
+  .closing {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.1rem;
+    box-shadow: var(--shadow);
+  }
+  .closing ol {
+    margin: 1rem 0 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .closing li::marker {
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--accent-ink);
+    font-weight: 500;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--ink-400);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .task { grid-template-columns: auto 1fr; }
+    .task .pill { grid-column: 2; justify-self: start; margin-top: 0.4rem; }
+    .bar-row { grid-template-columns: 90px 1fr 70px; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<div class="page">
+
+  <header class="masthead">
+    <span class="eyebrow">Findings report · for New Measure</span>
+    <h1 class="title">TriggerDevBench</h1>
+    <p class="dek">
+      A reliability benchmark for Trigger.dev's self-hosted platform, built in the
+      task-directory format of New&nbsp;Measure &amp; Atomicwork's ITSMBench, adapted to
+      score a platform's own behavior against its claimed guarantees instead of an
+      agent's judgment.
+    </p>
+    <div class="masthead-meta">
+      <span>Target: <strong>Trigger.dev v4.5.16, self-hosted (Docker)</strong></span>
+      <span>Tasks: <strong>10 built, all live-verified</strong></span>
+      <span>Method: <strong>black-box, real infrastructure, no mocks</strong></span>
+    </div>
+  </header>
+
+  <section id="summary">
+    <h2>Executive summary</h2>
+    <p class="section-note">
+      Every task in this report was run against a real self-hosted deployment on real
+      hardware — no simulated responses. Three findings are confirmed platform bugs;
+      one is a confirmed pass at the platform's own claimed SLA; the rest establish
+      that the core correctness guarantees (idempotency, retries, replay, queue
+      fairness) hold under adversarial, concurrent conditions.
+    </p>
+    <div class="stat-strip">
+      <div class="stat"><span class="num">10</span><span class="label">Tasks built &amp; live-verified</span></div>
+      <div class="stat"><span class="num fail">3</span><span class="label">Confirmed platform bugs</span></div>
+      <div class="stat"><span class="num good">6</span><span class="label">Confirmed passes</span></div>
+      <div class="stat"><span class="num">2</span><span class="label">Gaps found in Trigger.dev's own test suite</span></div>
+      <div class="stat"><span class="num">1</span><span class="label">Undocumented capacity-planning finding</span></div>
+    </div>
+  </section>
+
+  <section id="tasks">
+    <h2>The ten tasks</h2>
+    <p class="section-note">
+      Numbered in discovery order — each task's id (<span class="mono">task-01</span>
+      … <span class="mono">task-10</span>) matches its directory in the repo, so the
+      order below is also the literal file order.
+    </p>
+    <div class="task-list">
+
+      <div class="task">
+        <span class="idx mono">01</span>
+        <div class="body">
+          <div class="task-name">Trigger a task id no worker will ever register</div>
+          <div class="task-detail">Deploy-drift: a typo'd or renamed task identifier, permanently unfulfillable.</div>
+          <div class="task-finding">Run stayed <span class="mono">PENDING_VERSION</span> at <span class="mono">T+11:02</span>, past its own 10-minute TTL. Trigger call itself returned <span class="mono">HTTP 200</span> — a false-positive success.</div>
+        </div>
+        <span class="pill fail">Fail</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">02</span>
+        <div class="body">
+          <div class="task-name">Cancel mid-execution — does cleanup code ever run?</div>
+          <div class="task-detail">5 independent trials, canceled 2s into a 10s task, checked for cooperative <span class="mono">signal.aborted</span> output.</div>
+          <div class="task-finding"><span class="mono">5/5</span> trials: <span class="mono">status: CANCELED</span>. <span class="mono">0/5</span> trials showed any output — confirmed deterministic hard-kill, not a race.</div>
+        </div>
+        <span class="pill fail">Fail</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">03</span>
+        <div class="body">
+          <div class="task-name">Webhook burst from a sender with no retry logic</div>
+          <div class="task-detail">200 individual triggers, fired as fast as possible, against the 750 req/window default limit.</div>
+          <div class="task-finding">Load-dependent: <span class="mono">0/200</span> lost in isolation, <span class="mono">173/200 (86.5%)</span> lost when run alongside other concurrent traffic on the same instance.</div>
+        </div>
+        <span class="pill info">Disclosed</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">04</span>
+        <div class="body">
+          <div class="task-name">Real SIGKILL of the worker mid-execution</div>
+          <div class="task-detail">Killed the entire dev-server process tree 7s into a 30s task. Never restarted it.</div>
+          <div class="task-finding">Resolved to <span class="mono">CANCELED / TASK_RUN_STALLED_EXECUTING</span> at <span class="mono">300.06s</span> — within 57ms of the platform's own 300.00s claimed SLA.</div>
+        </div>
+        <span class="pill pass">Pass</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">05</span>
+        <div class="body">
+          <div class="task-name">Self-hosted's missing checkpoint support, measured</div>
+          <div class="task-detail">4× <span class="mono">wait.for(20s)</span> on a <span class="mono">concurrencyLimit: 2</span> queue.</div>
+          <div class="task-finding">Batch took <span class="mono">41.4s</span> — matching the blocking model (<span class="mono">2×20s</span>), not the non-blocking one. Confirms docs: self-hosted Docker has no CRIU checkpoint support at all.</div>
+        </div>
+        <span class="pill info">Disclosed</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">06</span>
+        <div class="body">
+          <div class="task-name">Idempotency key under a true concurrent race</div>
+          <div class="task-detail">5 simultaneous triggers, same <span class="mono">idempotencyKey</span>, no delay between calls.</div>
+          <div class="task-finding">Collapsed to <span class="mono">1</span> run, <span class="mono">1</span> execution — enforced via a Postgres unique constraint, not app-level locking.</div>
+        </div>
+        <span class="pill pass">Pass</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">07</span>
+        <div class="body">
+          <div class="task-name">Exponential backoff, wall-clock verified</div>
+          <div class="task-detail">3 forced failures, then success — checked real delay, not just retry count.</div>
+          <div class="task-finding"><span class="mono">attemptCount: 4</span>, wall time <span class="mono">10.8s</span> against a <span class="mono">7.0s</span> theoretical minimum backoff.</div>
+        </div>
+        <span class="pill pass">Pass</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">08</span>
+        <div class="body">
+          <div class="task-name">Wildcard concurrency key vs. queue fairness</div>
+          <div class="task-detail">Regression check on a previously-fixed starvation bug (<span class="mono">concurrencyKey: "*"</span>).</div>
+          <div class="task-finding">3 distinct-key runs completed in <span class="mono">1.36s</span> while the wildcard-key run held for <span class="mono">6s</span> — no starvation.</div>
+        </div>
+        <span class="pill pass">Pass</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">09</span>
+        <div class="body">
+          <div class="task-name">Replay determinism</div>
+          <div class="task-detail"><span class="mono">POST /replay</span> on a pure task — new run, or a silent cache hit?</div>
+          <div class="task-finding">New run id, <span class="mono">executionNumber: 2</span> (genuine re-execution), identical output hash to the original.</div>
+        </div>
+        <span class="pill pass">Pass</span>
+      </div>
+
+      <div class="task">
+        <span class="idx mono">10</span>
+        <div class="body">
+          <div class="task-name">4MB oversized payload</div>
+          <div class="task-detail">Adversarial input size — looking for a hang, crash, or silent truncation.</div>
+          <div class="task-finding">Clean <span class="mono">HTTP 413</span>, <span class="mono">"Request body too large"</span>. No hang, no truncation.</div>
+        </div>
+        <span class="pill pass">Pass</span>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="charts">
+    <h2>Two findings, measured</h2>
+    <p class="section-note">
+      The two most consequential results aren't pass/fail booleans — they're
+      timing comparisons against a stated or implied claim.
+    </p>
+
+    <div class="chart-card">
+      <h3>Task-04 — crash recovery vs. the platform's own SLA</h3>
+      <div class="chart-sub">Source: <span class="mono">RUN_ENGINE_TIMEOUT_EXECUTING</span>, apps/webapp/app/env.server.ts (default 300<span class="mono">,</span>000ms)</div>
+      <div class="bar-row">
+        <span class="bar-label">Claimed SLA</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width:100%"></div></div>
+        <span class="bar-value">300.00s</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Actual (measured)</span>
+        <div class="bar-track"><div class="bar-fill good" style="width:100%"></div></div>
+        <span class="bar-value">300.06s</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Task-05 — 4-task batch, concurrencyLimit: 2, wait.for(20s) each</h3>
+      <div class="chart-sub">Non-blocking theory assumes Cloud-style checkpointing; blocking theory assumes self-hosted holds the slot for the wait's duration</div>
+      <div class="bar-row">
+        <span class="bar-label">Non-blocking theory</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width:48%"></div></div>
+        <span class="bar-value">20.0s</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Blocking theory</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width:97%"></div></div>
+        <span class="bar-value">40.0s</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Actual (measured)</span>
+        <div class="bar-track"><div class="bar-fill fail" style="width:100%"></div></div>
+        <span class="bar-value">41.4s</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="methodology">
+    <h2>Grounding &amp; methodology</h2>
+    <p class="section-note">
+      Every finding was cross-referenced against the Trigger.dev source (cloned
+      locally, not read from docs alone) before being written up, and the eval
+      design draws directly from published methodology rather than ad hoc poking.
+    </p>
+    <div class="provenance-grid">
+      <div class="prov-card">
+        <div class="prov-kind">Source cross-reference</div>
+        <h4>pendingVersion.test.ts</h4>
+        <p>448 lines, 3 scenarios — all require a matching worker to eventually arrive. Never tests the "no worker ever will" case task-01 reproduces.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Source cross-reference</div>
+        <h4>cancelling.test.ts</h4>
+        <p>450 lines — zero assertions on <span class="mono">output</span> or cleanup behavior for a canceled run. Task-02's finding isn't covered by the platform's own tests either.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Source cross-reference</div>
+        <h4>snapshotStoreChaos.test.ts</h4>
+        <p>Trigger.dev's own white-box chaos suite — in-process fault injection at 3 named write boundaries, validated against a TLA+ model. Task-04 is this suite's black-box counterpart: a real SIGKILL, not an injected exception.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Source cross-reference</div>
+        <h4>docs/self-hosting/docker.mdx</h4>
+        <p>"No checkpoint support… only ever experimental when self-hosting." Confirmed zero references to "checkpoint" anywhere in <span class="mono">packages/cli-v3/src/</span>. Task-05 measures the operational consequence.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Methodology</div>
+        <h4>Jepsen</h4>
+        <p>Adversarial workload + fault injection, scored against a system's <em>claimed</em> guarantee rather than general correctness. Task-06's concurrent-race design follows this directly.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Methodology</div>
+        <h4>"Simple Testing Can Prevent Most Critical Failures" (OSDI '14)</h4>
+        <p>92% of catastrophic distributed-systems failures trace to mishandled non-fatal errors. Every bug found here — task-01, task-02, task-03 — is exactly this class: an error-handling path, not a deep distributed-systems fault.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Methodology</div>
+        <h4>"Beyond pass@1" (2026)</h4>
+        <p>A single crash/cancel/race trial can't distinguish deterministic behavior from a timing-dependent coin flip. Task-02 runs 5 independent trials and reports a rate, not one boolean.</p>
+      </div>
+      <div class="prov-card">
+        <div class="prov-kind">Methodology</div>
+        <h4>SWE-bench</h4>
+        <p>Build the eval directly from a real-world artifact (a GitHub issue, a source-code gap) rather than an invented scenario. Every task here traces to a cited commit, doc, or test file.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="format">
+    <h2>Why this looks like ITSMBench</h2>
+    <div class="format-note">
+      <p style="margin:0; color: var(--ink-700);">
+        Every task keeps ITSMBench's directory shape and reward.txt scoring
+        convention. The one deliberate departure: ITSMBench scores an LLM
+        agent's judgment inside <span class="mono">environment</span>'s
+        <span class="mono">main</span> container; this benchmark scores the
+        platform itself, so each task's <span class="mono">driver/</span> is a
+        fixed, deterministic script standing in for the agent — doing exactly
+        what <span class="mono">instruction.md</span> describes, no model or
+        harness selection involved.
+      </p>
+      <div class="fnote-tree">tasks/task-01-pending-version-stuck-run/
+  task.toml          schema, timeouts, docker image ref
+  instruction.md      ticket-style prompt
+  README.md           narrative: expected vs. found, why it matters
+  environment/         shared self-hosted Trigger.dev stack
+  driver/              deterministic action (replaces the agent)
+  tests/                test_outputs.mjs + test.sh -> reward.txt</div>
+    </div>
+  </section>
+
+  <section id="closing">
+    <div class="closing">
+      <h2>What this makes possible next</h2>
+      <ol class="mono" style="font-family: 'IBM Plex Sans', sans-serif;">
+        <li><strong>Scale to the full candidate list.</strong> 10 of 50+ scoped long-running and adversarial scenarios are built — checkpointed multi-day waits, deploy-mid-flight, cross-node causal consistency, sustained-backlog fairness at scale.</li>
+        <li><strong>Repeat-trial scoring throughout.</strong> Extend the task-02 reliability-science pattern (N independent trials, a rate not a boolean) to every timing-sensitive task in the suite.</li>
+        <li><strong>Port the format to other durable-execution platforms.</strong> The driver/tests split is platform-agnostic — Temporal, AWS Step Functions, and Inngest are direct next targets using the same shared-environment pattern.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <span>TriggerDevBench · self-hosted Trigger.dev v4.5.16</span>
+    <span>All findings live-verified against a real running deployment, no mocked responses</span>
+  </footer>
+
+</div>

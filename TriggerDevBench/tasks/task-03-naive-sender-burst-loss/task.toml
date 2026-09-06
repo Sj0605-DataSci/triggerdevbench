@@ -1,0 +1,26 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-03-naive-sender-burst-loss"
+description = "Fire a webhook-style burst from a sender with no retry logic and measure permanent data loss against self-hosted default rate limits."
+authors = ["TriggerDevBench"]
+keywords = ["webhooks", "rate-limiting", "data-loss", "self-hosted"]
+
+[metadata]
+source = "r/selfhosted community report of webhook data loss under load in v2, motivated a custom queue rewrite for v3; reproduced against v4.5.16 self-hosted defaults"
+claimed_sla = "Self-hosted default rate limit: 750 requests/window (observed via 429 response body)"
+
+[verifier]
+timeout_sec = 60.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 30.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

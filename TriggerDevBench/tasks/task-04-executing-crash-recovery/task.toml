@@ -1,0 +1,31 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-04-executing-crash-recovery"
+description = "SIGKILL the entire worker process tree mid-execution and check whether the platform's own heartbeat sweep resolves the run without a worker ever reconnecting."
+authors = ["TriggerDevBench"]
+keywords = ["crash-recovery", "heartbeat", "self-hosted", "chaos-testing"]
+
+[metadata]
+source = "Live black-box repro against self-hosted v4.5.16, cross-referenced against RUN_ENGINE_TIMEOUT_EXECUTING in apps/webapp/app/env.server.ts"
+claimed_sla = "RUN_ENGINE_TIMEOUT_EXECUTING default 300_000ms (5 minutes) per Trigger.dev source"
+note = "This is the black-box counterpart to Trigger.dev's own internal white-box chaos suite (internal-packages/run-engine/src/engine/tests/snapshotStoreChaos.test.ts), which injects faults in-process at named write boundaries. This task instead SIGKILLs the real OS process, which no unit test can reach."
+
+[verifier]
+timeout_sec = 420.0
+
+[verifier.env]
+
+[driver]
+# The driver itself performs the kill via host access, not inside a container --
+# see environment/README.md for why this task's driver runs on the host rather
+# than in the sandboxed `main` container ITSMBench tasks use.
+timeout_sec = 15.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+requires_host_process_control = true
+
+[environment.env]

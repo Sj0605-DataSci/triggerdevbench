@@ -1,0 +1,27 @@
+schema_version = "1.0"
+artifacts = []
+
+[task]
+name = "triggerdevbench/task-02-cancel-hard-kill"
+description = "Cancel a task mid-execution and check whether cooperative cleanup code (AbortSignal) ever gets a chance to run."
+authors = ["TriggerDevBench"]
+keywords = ["cancellation", "cleanup", "abort-signal", "reliability-science"]
+
+[metadata]
+source = "Confirmed via 5 independent trials against self-hosted v4.5.16 (see README for methodology)"
+platform_test_coverage_gap = "internal-packages/run-engine/src/engine/tests/cancelling.test.ts never asserts on `output` or cleanup behavior for a canceled run."
+methodology_note = "Run N=5 independent trials per 'Beyond pass@1: A Reliability Science Framework for Long-Horizon LLM Agents' (2026) -- a single cancel attempt cannot distinguish a deterministic hard-kill from a timing-dependent race."
+
+[verifier]
+timeout_sec = 120.0
+
+[verifier.env]
+
+[driver]
+timeout_sec = 60.0
+
+[environment]
+compose_ref = "../../shared/docker-compose.self-hosted.yaml"
+os = "linux"
+
+[environment.env]

@@ -1,0 +1,3 @@
+include:
+  - path: ../../trigger.dev/hosting/docker/webapp/docker-compose.yml
+  - path: ../../trigger.dev/hosting/docker/worker/docker-compose.yml
